@@ -15,11 +15,13 @@ export class pokemonController {
     return this.pokemonService.create(createPokemonDto);
   }
 
+  @UseInterceptors(CacheInterceptor)
   @Get()
   findAll( @Query() paginationDto: PaginationDto ) {
     return this.pokemonService.findAll(paginationDto);
   }
-
+  
+  @UseInterceptors(CacheInterceptor)
   @Get(':term')
   findOne(@Param('term') term: string) {
     return this.pokemonService.findOne(term);
