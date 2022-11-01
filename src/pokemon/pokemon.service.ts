@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, InternalServerErrorException, NotFoundException, Inject, CACHE_MANAGER } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 import { Pokemon } from './entities/Pokemon.entity';
@@ -6,15 +6,21 @@ import { Pokemon } from './entities/Pokemon.entity';
 import { CreatePokemonDto } from './dto/create-Pokemon.dto';
 import { UpdatePokemonDto } from './dto/update-Pokemon.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { Cache } from 'cache-manager';
+import { ConfigService } from '@nestjs/config';
 
 
 @Injectable()
 export class pokemonService {
 
+  defaultLimit: number;
   constructor( 
     @InjectModel(Pokemon.name)
-    private readonly pokemonModel: Model<Pokemon>){
+    private readonly pokemonModel: Model<Pokemon>,
+    private readonly configService: ConfigService){
 
+     this.defaultLimit = configService.get<number>('defaultLimit');
+     
   }
   
 
@@ -38,13 +44,17 @@ export class pokemonService {
 
   async findAll( paginationDto: PaginationDto) {
      
-   const { limit = 10, offset = 0, search= ''} = paginationDto;
-
+   const { limit =  this.defaultLimit, offset = 0, search= ''} = paginationDto;
+   
+   let response ;
+   
    if(search !== ''){
-    return this.pokemonModel.find({ "name": { $regex: '.*' + search + '.*' } }).limit(limit).skip(offset).sort({ id:1}).select('-__v').clone();
+    response = this.pokemonModel.find({ "name": { $regex: '.*' + search + '.*' } }).limit(limit).skip(offset).sort({ id:1}).select('-__v').clone();
    }else{
-    return this.pokemonModel.find().limit(limit).skip(offset).sort({ id:1}).select('-__v');
-   }     
+    response = this.pokemonModel.find().limit(limit).skip(offset).sort({ id:1}).select('-__v');
+   } 
+   
+   return response;
   
   }
 
