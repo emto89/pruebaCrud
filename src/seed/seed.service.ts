@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Pokemon } from 'src/pokemon/entities/Pokemon.entity';
-import { PokeResponse } from './interfaces/pokemon-response.interface';
+import { Pokemon } from '../pokemon/entities/pokemon.entity';
+import { PokeResponse } from '../seed/interfaces/pokemon-response.interface';
 import { AxiosAdapter } from '../common/adapters/axios.adapter';
 
 @Injectable()
