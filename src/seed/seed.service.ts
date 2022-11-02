@@ -19,7 +19,7 @@ async executeSeed(){
 
   await this.pokemonModel.deleteMany({}) /** Elimina todos lo registros de la BD antes de insertar */
 
-  const data  = await this.http.get<PokeResponse>('https://pokeapi.co/api/v2/pokemon?limit=650');
+  const data  = await this.http.get<PokeResponse>(process.env.URL_POKEMON);
 
   const pokemonToInsert: { name: string, id:number, url: string}[] = [] ;
   

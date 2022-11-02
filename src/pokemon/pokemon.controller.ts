@@ -1,9 +1,9 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, CacheInterceptor } from '@nestjs/common';
-import { pokemonService } from './pokemon.service';
-import { CreatePokemonDto } from './dto/create-pokemon.dto';
-import { UpdatePokemonDto } from './dto/update-pokemon.dto';
-import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id/parse-mongo-id.pipe';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { pokemonService } from '../pokemon/pokemon.service';
+import { CreatePokemonDto } from '../pokemon/dto/create-pokemon.dto';
+import { UpdatePokemonDto } from '../pokemon/dto/update-pokemon.dto';
+import { ParseMongoIdPipe } from '../common/pipes/parse-mongo-id/parse-mongo-id.pipe';
+import { PaginationDto } from '../common/dto/pagination.dto';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { Pokemon } from './entities/pokemon.entity';
 import { CacheKey } from '@nestjs/common';
@@ -27,15 +27,17 @@ export class pokemonController {
   @Get()
   @ApiResponse({ status: 201, description: 'Se obtienen todos los pokemon', type: Pokemon})
   @ApiResponse({ status: 400, description: 'Bad Request'})
-  @CacheKey('consultaPokemons')
+  @UseInterceptors(CacheInterceptor)
+  @CacheKey('consultaPokemon')
   findAll( @Query() paginationDto: PaginationDto ) {
     return this.pokemonService.findAll(paginationDto);
   }
   
-  @UseInterceptors(CacheInterceptor)
+  
   @Get(':term')
   @ApiResponse({ status: 201, description: 'Se obtiene un pokemon por un termino de busqueda', type: Pokemon})
   @ApiResponse({ status: 400, description: 'Bad Request'})
+  @UseInterceptors(CacheInterceptor)
   @CacheKey('consultaPokemon')
   findOne(@Param('term') term: string) {
     return this.pokemonService.findOne(term);

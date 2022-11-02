@@ -22,7 +22,10 @@ import * as redisStore from 'cache-manager-redis-store';
     ServeStaticModule.forRoot({
     rootPath: join(__dirname,'..','public'),
     }),
-    CacheModule.register({ isGlobal: true}),
+    CacheModule.register({
+      host: 'localhost',
+      port: 6379
+    }),
     MongooseModule.forRoot( process.env.MONGODB),
     CacheModule.register({ isGlobal: true}),
     pokemonModule,

@@ -48,16 +48,6 @@ export class pokemonService {
      
      try {
       
-      const pokemon = this.get('consultaPokemon');
-      console.log(pokemon);
-      if(pokemon){
-        return {
-          data: pokemon ,
-          FromRedis:'enviado por redis'
-        }
-      }
-      console.log("pokemon",pokemon);
-      if(!pokemon){
         const { limit =  this.defaultLimit, offset = 0, search= ''} = paginationDto;
      
         let response ;
@@ -68,10 +58,10 @@ export class pokemonService {
          response = this.pokemonModel.find().limit(limit).skip(offset).sort({ id:1}).select('-__v');
         } 
   
-         await this.set('consultaPokemon', { response });
+         
         
         return response;
-      }
+      
 
      } catch (error) {
       
