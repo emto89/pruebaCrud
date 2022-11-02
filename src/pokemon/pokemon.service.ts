@@ -18,7 +18,8 @@ export class pokemonService {
   constructor( 
     @InjectModel(Pokemon.name)
     private readonly pokemonModel: Model<Pokemon>,
-    private readonly configService: ConfigService){
+    private readonly configService: ConfigService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache){
 
      this.defaultLimit = configService.get<number>('defaultLimit');
      
@@ -45,17 +46,38 @@ export class pokemonService {
 
   async findAll( paginationDto: PaginationDto) {
      
-   const { limit =  this.defaultLimit, offset = 0, search= ''} = paginationDto;
-   
-   let response ;
-   
-   if(search !== ''){
-    response = this.pokemonModel.find({ "name": { $regex: '.*' + search + '.*' } }).limit(limit).skip(offset).sort({ id:1}).select('-__v').clone();
-   }else{
-    response = this.pokemonModel.find().limit(limit).skip(offset).sort({ id:1}).select('-__v');
-   } 
-   
-   return response;
+     try {
+      
+      const pokemon = this.get('consultaPokemon');
+      console.log(pokemon);
+      if(pokemon){
+        return {
+          data: pokemon ,
+          FromRedis:'enviado por redis'
+        }
+      }
+      console.log("pokemon",pokemon);
+      if(!pokemon){
+        const { limit =  this.defaultLimit, offset = 0, search= ''} = paginationDto;
+     
+        let response ;
+        
+        if(search !== ''){
+         response = this.pokemonModel.find({ "name": { $regex: '.*' + search + '.*' } }).limit(limit).skip(offset).sort({ id:1}).select('-__v').clone();
+        }else{
+         response = this.pokemonModel.find().limit(limit).skip(offset).sort({ id:1}).select('-__v');
+        } 
+  
+         await this.set('consultaPokemon', { response });
+        
+        return response;
+      }
+
+     } catch (error) {
+      
+      throw new BadRequestException(`${error}`)
+
+     }
   
   }
 
@@ -112,7 +134,14 @@ export class pokemonService {
     if(error.code === 11000){
       throw new BadRequestException(`Pokemone ya existe en la bd ${JSON.stringify(error.keyValue)}`)
     }else{
-      throw new InternalServerErrorException(`No se pudo actualizar el Pokemone - revisar los log del servidor`)
+      throw new InternalServerErrorException(`No se pudo actualizar el Pokemon - revisar los log del servidor`)
     }
+  }
+
+  private async get(name){
+    return await this.cacheManager.get(name);
+  }
+  private async set(key, value){
+    return await this.cacheManager.set(key, value);
   }
 }

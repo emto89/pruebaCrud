@@ -6,11 +6,11 @@
 1. Clonar el repositorio
 2. Ejecutar el comando:
 ```
-npm install
+yarn install
 ```
 3. Tener nest CLI instalado
 ```
-npm i -g @nestjs/cli
+yarn i -g @nestjs/cli
 ```
 
 4. Levantar la base de datos en docker
@@ -32,6 +32,23 @@ npm run start:dev o nest start dev
 localhost:3000/api/seed
 ```
 
+9. La documentación del servicio
+```
+http://localhost:3000/api#/
+```
+
+10. Para construir la imagen en docker de la aplicacion usar el siguiente comando
+```
+docker-compose -f docker-compose.prod.yaml --env-file .env.prod up --build
+```
+
 ## Stack utilizado
 * MondoDB
 * Nest
+
+# Notas
+Heroku redeploy sin cambios
+```
+git commit --allow-empty -m "TiggerHeroku deploy"
+git push heroku <master/main>
+```

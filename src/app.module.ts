@@ -11,6 +11,8 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { EnvConfiguration } from './config/app.config';
 import { JoiValidationSchema } from './config/joi.validation';
 
+import * as redisStore from 'cache-manager-redis-store';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -20,6 +22,7 @@ import { JoiValidationSchema } from './config/joi.validation';
     ServeStaticModule.forRoot({
     rootPath: join(__dirname,'..','public'),
     }),
+    CacheModule.register({ isGlobal: true}),
     MongooseModule.forRoot( process.env.MONGODB),
     CacheModule.register({ isGlobal: true}),
     pokemonModule,
